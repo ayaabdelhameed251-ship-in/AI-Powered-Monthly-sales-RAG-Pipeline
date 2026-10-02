@@ -1,0 +1,218 @@
+{
+  "name": "AI Assistant chatbot",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.5,
+      "position": [
+        0,
+        0
+      ],
+      "id": "af936e48-eae1-4163-ae57-8b3ea2a1a2ac",
+      "name": "When chat message received",
+      "webhookId": "87ee7af0-7172-4d9a-bfa5-ad66432e3c18"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "You are an expert AI assistant for a retail company, helping managers analyze monthly sales, inventory, and branch performance reports.\n\nCRITICAL INSTRUCTION:\n1. ALWAYS use the \"Supabase Vector Store\" tool FIRST to retrieve relevant records whenever the user asks any question about sales, products, performance, inventory, or monthly data (such as Cairo, Alexandria, Mansoura, Giza, or specific months).\n2. DO NOT answer or acknowledge from memory without calling the Supabase Vector Store tool first.\n3. Base your answers, revenue comparisons, top-selling products, and inventory warnings strictly on the retrieved context.\n4. If the requested information is not found in the retrieved documents, politely state that you couldn't find it in the current monthly records.\n5. If the user explicitly asks to summarize and email a report, use the available Gmail tool to send it to the specified email address."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        224,
+        0
+      ],
+      "id": "b31afc92-41ae-42eb-b18b-9e220f8fcf1b",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-20b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        96,
+        224
+      ],
+      "id": "e6876d3d-1525-477b-a6f1-0c3d7667cadc",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "VMH346lVkDqZ6erY",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 12
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        240,
+        224
+      ],
+      "id": "f75df980-eb00-44e6-bf89-a4869d984a18",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Use this tool ALWAYS to search and retrieve monthly sales, inventory, and branch performance reports. Input should be the user query or search keywords related to sales, reports, or branch names.",
+        "tableName": {
+          "__rl": true,
+          "value": "documents",
+          "mode": "list",
+          "cachedResultName": "documents"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        368,
+        224
+      ],
+      "id": "43a43242-3629-408f-bd2a-a1f29231021e",
+      "name": "Supabase Vector Store",
+      "credentials": {
+        "supabaseApi": {
+          "id": "HBrv71EiPj1KpwzM",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "embeddinggemma:latest"
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOllama",
+      "typeVersion": 1,
+      "position": [
+        368,
+        384
+      ],
+      "id": "381ed945-9dea-429d-bc02-eeed4270cb5f",
+      "name": "Embeddings Ollama",
+      "credentials": {
+        "ollamaApi": {
+          "id": "93R9XnfZAQ4v82DN",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "hamidaya182@gmail.com",
+        "subject": "Retail Sales Report & Summary",
+        "message": "<!DOCTYPE html> <html lang=\"en\" dir=\"ltr\"> <head>     <meta charset=\"UTF-8\">     <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">     <title>Retail Sales Analysis Report - Graduation Project</title>     <style>         body {             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;             background-color: #f7f9fc;             margin: 0;             padding: 20px;             color: #2c3e50;         }         .container {             max-width: 800px;             margin: 0 auto;             background: #ffffff;             padding: 30px;             border-radius: 12px;             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);             border-top: 5px solid #34495e;         }         h1 {             color: #2c3e50;             font-size: 24px;             border-bottom: 2px solid #eaecee;             padding-bottom: 12px;             margin-top: 0;         }         .info-box {             background-color: #f8f9fa;             border-left: 4px solid #7f8c8d;             padding: 15px;             margin: 20px 0;             border-radius: 4px;         }         table {             width: 100%;             border-collapse: collapse;             margin-top: 20px;         }         th, td {             padding: 12px 15px;             border: 1px solid #eaecee;             text-align: left;         }         th {             background-color: #34495e;             color: white;             font-weight: 600;         }         tr:nth-child(even) {             background-color: #fdfefe;         }         .footer {             margin-top: 30px;             text-align: center;             font-size: 13px;             color: #95a5a6;             border-top: 1px solid #eaecee;             padding-top: 15px;         }     </style> </head> <body>      <div class=\"container\">         <h1>📊 Monthly Branch Sales & Performance Report</h1>                  <div class=\"info-box\">             <p><strong>System Note:</strong> This report was automatically generated and retrieved via AI Assistant RAG pipeline and Supabase vector store database.</p>         </div>          <h3>Branch Performance Summary</h3>         <table>             <thead>                 <tr>                     <th>Branch Name</th>                     <th>Total Revenue</th>                     <th>Top-Selling Product</th>                     <th>Inventory Status</th>                 </tr>             </thead>             <tbody>                 <tr>                     <td>Cairo Branch</td>                     <td>$45,200</td>                     <td>Smart TVs</td>                     <td>Stable</td>                 </tr>                 <tr>                     <td>Alexandria Branch</td>                     <td>$38,900</td>                     <td>Gaming Laptops</td>                     <td>Warning (Low Stock)</td>                 </tr>                 <tr>                     <td>Mansoura Branch</td>                     <td>$29,400</td>                     <td>Tablets</td>                     <td>Stable</td>                 </tr>             </tbody>         </table>          <div class=\"footer\">             <p>Generated & Dispatched via n8n Automation Workflow - Graduation Project 2026</p>         </div>     </div>  </body> </html>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.2,
+      "position": [
+        704,
+        240
+      ],
+      "id": "8f041538-2d2e-4c6d-bf44-0d9495ce9d3a",
+      "name": "Send a message in Gmail",
+      "webhookId": "22845748-e57a-4c38-90b2-176e1a2a2a6a",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "bhZpzH4a8TfS35JF",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase Vector Store": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Ollama": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Supabase Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message in Gmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "59f31f2f-2969-444d-97b0-4052432b8704",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "49096cc8679052628b9c656a0a69814b57146d1907366930dc185ed3f74109f6"
+  },
+  "nodeGroups": [],
+  "id": "tHQTq7Nv4pfdPKdu",
+  "tags": []
+}

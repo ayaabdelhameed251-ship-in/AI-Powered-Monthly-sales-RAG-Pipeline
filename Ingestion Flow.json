@@ -1,0 +1,245 @@
+{
+  "name": "Ingestion Flow",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Monthly Sales Report ",
+        "formDescription": "Please fill in the monthly sales and upload the PDF file",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Branch Name",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Month",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "January "
+                  },
+                  {
+                    "option": "February "
+                  },
+                  {
+                    "option": "March"
+                  },
+                  {
+                    "option": "April "
+                  },
+                  {
+                    "option": "May"
+                  },
+                  {
+                    "option": "June"
+                  },
+                  {
+                    "option": "July "
+                  },
+                  {
+                    "option": "August "
+                  },
+                  {
+                    "option": "September "
+                  },
+                  {
+                    "option": "October "
+                  },
+                  {
+                    "option": "November "
+                  },
+                  {
+                    "option": "December "
+                  }
+                ]
+              }
+            },
+            {
+              "fieldLabel": "Sales PDF Report ",
+              "fieldType": "file"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.6,
+      "position": [
+        0,
+        0
+      ],
+      "id": "ea8e6510-f7cd-4c55-ae0b-880f5ce8f411",
+      "name": "On form submission",
+      "webhookId": "229bbd7c-1294-4622-b6db-4ee0d6349d7c"
+    },
+    {
+      "parameters": {
+        "name": "sales pdf report",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1mX_M0iHUaP4JcvznLJ9oNXf7rQYsSvFt",
+          "mode": "list",
+          "cachedResultName": "Project ",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1mX_M0iHUaP4JcvznLJ9oNXf7rQYsSvFt"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        448,
+        0
+      ],
+      "id": "7734987e-3b28-47fc-9a39-12c9e4ef9c2e",
+      "name": "Upload file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "s95lmnt2asrMCU9a",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const newItem = [];\nfor (const item of $input.all()) {\n  const binaryKeys = Object.keys(item.binary || {});\n  const binaryKey = binaryKeys[0];\n  \n  let newBinary = {};\n  if (binaryKey) {\n    newBinary = {\n      data: item.binary[binaryKey]\n    };\n  }\n  \n  newItem.push({\n    json: item.json,\n    binary: newBinary\n  });\n}\nreturn newItem;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        0
+      ],
+      "id": "17ab3ab4-0fd6-4997-9d21-b53a32db3593",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1ioXKnaTQavGQi_Fh-ETn8HYq3q0a3Zmo_Hxj_2RS7Xw",
+          "mode": "list",
+          "cachedResultName": "Sales Report",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ioXKnaTQavGQi_Fh-ETn8HYq3q0a3Zmo_Hxj_2RS7Xw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ioXKnaTQavGQi_Fh-ETn8HYq3q0a3Zmo_Hxj_2RS7Xw/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Branch Name": "={{ $('On form submission').item.json['Branch Name'] }}",
+            "Month": "={{ $('On form submission').item.json.Month }}",
+            "File link": "={{ $('Upload file').item.json.webContentLink}}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Branch Name",
+              "displayName": "Branch Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Month",
+              "displayName": "Month",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "File link",
+              "displayName": "File link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        672,
+        0
+      ],
+      "id": "4c27aae7-b071-43a4-b67a-4e9c0f53c2b3",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "nIhmIhisx0wNc28B",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Upload file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload file": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "7e5c0328-6f2c-4da2-bad9-01bed0ea75c8",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "49096cc8679052628b9c656a0a69814b57146d1907366930dc185ed3f74109f6"
+  },
+  "nodeGroups": [],
+  "id": "buEExGleEtUJoPwZ",
+  "tags": []
+}
